@@ -1,30 +1,64 @@
 package com.kanon.vintage.subscription.action;
 
+import com.kanon.vintage.subscription.dao.SubscriptionDAO;
+import com.kanon.vintage.subscription.ehcacheImp.SubscriptionEhcacheImp;
 import com.kanon.vintage.subscription.model.GroupSubscription;
 import com.kanon.vintage.subscription.model.PersonSubscription;
-import com.kanon.vintage.subscription.model.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public interface SubscriptionService {
+public abstract class SubscriptionService {
 
-    public PersonSubscription get(String userid);
+    /**
+     * 数据服务层
+     */
+    private SubscriptionDAO subscriptionDAO = null;
 
-    public boolean delete(String userid);
+    Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
 
-    public boolean save(PersonSubscription personSubscription);
+    public SubscriptionService(){
+        this.subscriptionDAO = new SubscriptionEhcacheImp();
+    }
 
-    public GroupSubscription getGroup(String userid, String groupName);
+    public SubscriptionService(SubscriptionDAO subscriptionDAO){
+        this.subscriptionDAO = subscriptionDAO;
+    }
 
-    public int addGroup(String userid, GroupSubscription groupSubscription);
+    public SubscriptionDAO getSubscriptionDAO() {
+        return subscriptionDAO;
+    }
 
-    public int updateGroup(String userid, GroupSubscription groupSubscription);
+    public void setSubscriptionDAO(SubscriptionDAO subscriptionDAO) {
+        this.subscriptionDAO = subscriptionDAO;
+    }
 
-    public int deleteGroup(String userid, String groupName);
+    public PersonSubscription get(String userid){
+        return subscriptionDAO.get(userid);
+    }
 
-    public boolean addSubscription(String userid, String groupname, Subscription subscription);
+    public boolean delete(String userid){
+        return  subscriptionDAO.delete(userid);
+    }
 
-    public boolean updateSubscrition(String userid, String groupname, Subscription subscription);
+    public boolean save(PersonSubscription personSubscription){
+        return subscriptionDAO.save(personSubscription);
+    }
 
-    public boolean deleteSubscrition(String userid, String groupname, Subscription subscription);
+    public GroupSubscription getGroup(String userid, String groupName){
+        return subscriptionDAO.getGroup(userid, groupName);
+    }
+
+    public int addGroup(String userid, GroupSubscription groupSubscription){
+        return subscriptionDAO.addGroup(userid, groupSubscription);
+    }
+
+    public int updateGroup(String userid, GroupSubscription groupSubscription){
+        return subscriptionDAO.updateGroup(userid, groupSubscription);
+    }
+
+    public int deleteGroup(String userid, String groupName){
+        return subscriptionDAO.deleteGroup(userid, groupName);
+    }
 
 
 }

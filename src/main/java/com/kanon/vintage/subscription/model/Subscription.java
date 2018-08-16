@@ -1,8 +1,11 @@
 package com.kanon.vintage.subscription.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Subscription {
+public class Subscription implements Serializable {
+
+    private static final long serialVersionUID = -2261179506280556731L;
 
     private String from;
 
@@ -14,11 +17,12 @@ public class Subscription {
 
     private Date publishDate;
 
-    public Subscription(String from, String title, String description, String link) {
+    public Subscription(String from, String title, String description, String link, Date publishDate) {
         this.from = from;
         this.title = title;
         this.description = description;
         this.link = link;
+        this.publishDate = publishDate;
     }
 
     public String getFrom() {
@@ -61,4 +65,32 @@ public class Subscription {
         this.publishDate = publishDate;
     }
 
+    /**
+     * 基础比较方法为from, link 完全相等
+     *
+     * @param obj
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        Subscription others = (Subscription) obj;
+        return this.from.equals(others.from)
+                && this.link.equals(others.link);
+    }
+
+    @Override
+    public int hashCode() {
+        return (this.from + this.link).hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Subscription{" +
+                "from='" + from + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", link='" + link + '\'' +
+                ", publishDate=" + publishDate +
+                '}';
+    }
 }
