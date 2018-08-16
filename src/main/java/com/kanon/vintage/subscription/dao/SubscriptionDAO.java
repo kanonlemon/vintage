@@ -32,7 +32,9 @@ public abstract class SubscriptionDAO {
      * @param personSubscription
      * @return
      */
-    public abstract boolean update(Optional<? extends PersonSubscription> personSubscription);
+    public boolean update(PersonSubscription personSubscription){
+        return this.save(personSubscription);
+    }
 
     /**
      * 删除一个人的全部订阅

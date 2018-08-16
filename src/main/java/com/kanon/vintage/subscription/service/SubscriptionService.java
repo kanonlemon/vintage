@@ -1,7 +1,6 @@
-package com.kanon.vintage.subscription.action;
+package com.kanon.vintage.subscription.service;
 
 import com.kanon.vintage.subscription.dao.SubscriptionDAO;
-import com.kanon.vintage.subscription.ehcacheImp.SubscriptionEhcacheImp;
 import com.kanon.vintage.subscription.model.GroupSubscription;
 import com.kanon.vintage.subscription.model.PersonSubscription;
 import org.slf4j.Logger;
@@ -15,10 +14,6 @@ public abstract class SubscriptionService {
     private SubscriptionDAO subscriptionDAO = null;
 
     Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
-
-    public SubscriptionService(){
-        this.subscriptionDAO = SubscriptionEhcacheImp.getInstance();
-    }
 
     public SubscriptionService(SubscriptionDAO subscriptionDAO){
         this.subscriptionDAO = subscriptionDAO;

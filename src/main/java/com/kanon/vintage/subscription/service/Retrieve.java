@@ -1,4 +1,4 @@
-package com.kanon.vintage.subscription.action;
+package com.kanon.vintage.subscription.service;
 
 import com.kanon.vintage.subscription.ehcacheImp.SubscriptionServiceEhcacheImp;
 import com.kanon.vintage.subscription.model.PersonSubscription;
@@ -24,16 +24,20 @@ public class Retrieve {
      */
     public Retrieve(Class... classes){
 
-        for(int i = 0 ; i < classes.length ; i++){
-            Class class_ = classes[i];
-            try {
-                if(class_.isInstance(SubscriptionService.class)){
-                    subscriptionServices.add((SubscriptionService) class_.newInstance());
+        if(classes.length == 0) {
+            this.subscriptionServices.add(new SubscriptionServiceEhcacheImp());
+        } else {
+            for (int i = 0; i < classes.length; i++) {
+                Class class_ = classes[i];
+                try {
+                        subscriptionServices.add((SubscriptionService) Thread.currentThread().getContextClassLoader().loadClass(class_.getName()).newInstance());
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -51,7 +55,7 @@ public class Retrieve {
         });
         List<Subscription> results = new ArrayList<Subscription>();
         if(groupNames.length==0){
-            logger.warn("empty searching space, user all" );
+            logger.warn("empty searching space, use all" );
             Set<String> set = personSubscription.getGroupSubscriptions().keySet();
             groupNames = set.toArray(new String[set.size()]);
         }

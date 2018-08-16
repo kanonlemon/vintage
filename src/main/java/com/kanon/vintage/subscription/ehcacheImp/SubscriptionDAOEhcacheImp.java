@@ -21,21 +21,22 @@ import java.util.Map;
 import java.util.Optional;
 
 
-public class SubscriptionEhcacheImp extends SubscriptionDAO {
+public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
 
-    private static SubscriptionEhcacheImp subscriptionEhcacheImp = new SubscriptionEhcacheImp();
+    private static SubscriptionDAOEhcacheImp subscriptionEhcacheImp = new SubscriptionDAOEhcacheImp();
 
-    public static SubscriptionEhcacheImp getInstance(){ return subscriptionEhcacheImp;}
+    public static SubscriptionDAOEhcacheImp getInstance(){ return subscriptionEhcacheImp;}
 
-    private SubscriptionEhcacheImp() {}
+    private SubscriptionDAOEhcacheImp() {}
 
 
     static String getStoragePath(){
         return "../tmp/ehcache";
     }
 
-    Logger logger = LoggerFactory.getLogger(SubscriptionEhcacheImp.class);
+    Logger logger = LoggerFactory.getLogger(SubscriptionDAOEhcacheImp.class);
     CacheManager cacheManager = null;
+    Cache cache = null;
 
     private final static String CACHE_NAME = "SUBSCRIPTION_CACHE";
 
@@ -58,11 +59,9 @@ public class SubscriptionEhcacheImp extends SubscriptionDAO {
     }
 
 
-
     public Cache getCache(){
-        Cache cache =  getCacheManager().getCache(CACHE_NAME, String.class, PersonSubscription.class);
         if(cache == null){
-            cache = getCacheManager().createCache(CACHE_NAME, getDefaultConfigurationBuilder());
+            cache = getCacheManager().getCache(CACHE_NAME, String.class, PersonSubscription.class);
         }
         return cache;
     }
@@ -82,13 +81,11 @@ public class SubscriptionEhcacheImp extends SubscriptionDAO {
 
     public boolean save(PersonSubscription personSubscription) {
         getCache().put(personSubscription.getId(), personSubscription);
+        getCacheManager().close();
+        getCacheManager().init();
         return false;
     }
 
-    public boolean update(Optional<? extends PersonSubscription> personSubscription) {
-        getCache().put(personSubscription.get().getId(), personSubscription);
-        return false;
-    }
 
     public boolean delete(String userid) {
         getCache().remove(userid);
@@ -129,4 +126,6 @@ public class SubscriptionEhcacheImp extends SubscriptionDAO {
         this.save(personSubscription);
         return size;
     }
+
+
 }
