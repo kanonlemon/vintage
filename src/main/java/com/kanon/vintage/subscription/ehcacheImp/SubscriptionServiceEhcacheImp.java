@@ -1,6 +1,6 @@
 package com.kanon.vintage.subscription.ehcacheImp;
 
-import com.kanon.vintage.subscription.action.SubscriptionService;
+import com.kanon.vintage.subscription.service.SubscriptionService;
 
 /**
  * default dao with ehchache, definition in abstract class
@@ -11,4 +11,7 @@ import com.kanon.vintage.subscription.action.SubscriptionService;
 public class SubscriptionServiceEhcacheImp extends SubscriptionService {
 
 
+    public SubscriptionServiceEhcacheImp() {
+        super(SubscriptionDAOEhcacheImp.getInstance());
+    }
 }
