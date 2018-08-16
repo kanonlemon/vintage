@@ -17,7 +17,7 @@ public abstract class SubscriptionService {
     Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
 
     public SubscriptionService(){
-        this.subscriptionDAO = new SubscriptionEhcacheImp();
+        this.subscriptionDAO = SubscriptionEhcacheImp.getInstance();
     }
 
     public SubscriptionService(SubscriptionDAO subscriptionDAO){

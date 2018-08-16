@@ -23,6 +23,13 @@ import java.util.Optional;
 
 public class SubscriptionEhcacheImp extends SubscriptionDAO {
 
+    private static SubscriptionEhcacheImp subscriptionEhcacheImp = new SubscriptionEhcacheImp();
+
+    public static SubscriptionEhcacheImp getInstance(){ return subscriptionEhcacheImp;}
+
+    private SubscriptionEhcacheImp() {}
+
+
     static String getStoragePath(){
         return "../tmp/ehcache";
     }
