@@ -1,6 +1,6 @@
 package com.kanon.vintage.subscription.service;
 
-import com.kanon.vintage.subscription.ehcacheImp.SubscriptionServiceEhcacheImp;
+import com.kanon.vintage.subscription.imp.ehcache.SubscriptionServiceEhcacheImp;
 import com.kanon.vintage.subscription.model.PersonSubscription;
 import com.kanon.vintage.subscription.model.Subscription;
 import org.apache.commons.lang3.StringUtils;

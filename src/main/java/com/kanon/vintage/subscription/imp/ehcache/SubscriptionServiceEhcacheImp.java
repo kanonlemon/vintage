@@ -1,4 +1,4 @@
-package com.kanon.vintage.subscription.ehcacheImp;
+package com.kanon.vintage.subscription.imp.ehcache;
 
 import com.kanon.vintage.subscription.service.SubscriptionService;
 

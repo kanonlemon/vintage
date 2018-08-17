@@ -1,5 +1,6 @@
-package com.kanon.vintage.subscription.ehcacheImp;
+package com.kanon.vintage.subscription.imp.ehcache;
 
+import com.kanon.vintage.configuration.propertiesLoader;
 import com.kanon.vintage.subscription.dao.SubscriptionDAO;
 import com.kanon.vintage.subscription.model.GroupSubscription;
 import com.kanon.vintage.subscription.model.PersonSubscription;
@@ -18,20 +19,34 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 
+/**
+ * solution with ehcache3.x
+ * need ehcache master!!!!!
+ *
+ * @author kanon
+ * @email wengxuan1992@hotmail.com
+ */
 public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
 
     private static SubscriptionDAOEhcacheImp subscriptionEhcacheImp = new SubscriptionDAOEhcacheImp();
 
     public static SubscriptionDAOEhcacheImp getInstance(){ return subscriptionEhcacheImp;}
 
-    private SubscriptionDAOEhcacheImp() {}
+    private String storagePath;
 
+    private SubscriptionDAOEhcacheImp() {
 
-    static String getStoragePath(){
-        return "../tmp/ehcache";
+        if( Boolean.valueOf(propertiesLoader.getProperty("vintage.subscription.ehcache,enableshutdownhook"))) {
+            //if shutdown hook is enabled, then add a safe close of cacheManager
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> SubscriptionDAOEhcacheImp.getInstance().cacheManager.close()));
+        }
+        this.storagePath =  propertiesLoader.getProperty("vintage.subscription.ehcache.diskroot");
+    }
+
+    private String getStoragePath(){
+        return this.storagePath;
     }
 
     Logger logger = LoggerFactory.getLogger(SubscriptionDAOEhcacheImp.class);
@@ -44,15 +59,15 @@ public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
        return  CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, PersonSubscription.class,
                 ResourcePoolsBuilder.newResourcePoolsBuilder()
                         .heap(10, EntryUnit.ENTRIES)
-                        .offheap(1, MemoryUnit.MB)
-                        .disk(20, MemoryUnit.MB, true));
+                        .disk(500, MemoryUnit.MB, true));
     }
+
 
     public CacheManager getCacheManager() {
         if(this.cacheManager==null) {
             cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-                    .with(CacheManagerBuilder.persistence(new File(getStoragePath(), CACHE_NAME)))
-                    .withCache(CACHE_NAME, getDefaultConfigurationBuilder())
+                    .with(CacheManagerBuilder.persistence(new File(this.getStoragePath(), CACHE_NAME)))
+                    .withCache(CACHE_NAME, getDefaultConfigurationBuilder())// init a cache
                     .build(true);
         }
         return cacheManager;
@@ -81,11 +96,8 @@ public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
 
     public boolean save(PersonSubscription personSubscription) {
         getCache().put(personSubscription.getId(), personSubscription);
-        getCacheManager().close();
-        getCacheManager().init();
         return false;
     }
-
 
     public boolean delete(String userid) {
         getCache().remove(userid);
@@ -126,6 +138,5 @@ public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
         this.save(personSubscription);
         return size;
     }
-
 
 }
