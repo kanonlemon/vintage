@@ -12,6 +12,6 @@ public class SubscriptionServiceEhcacheImp extends SubscriptionService {
 
 
     public SubscriptionServiceEhcacheImp() {
-        super(SubscriptionDAOEhcacheImp.getInstance());
+        super(new SubscriptionDAOEhcacheImp());
     }
 }

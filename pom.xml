@@ -3,10 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.kanon</groupId>
     <artifactId>vintage</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.1</version>
+    <packaging>jar</packaging>
+
     <build>
         <plugins>
             <plugin>
@@ -17,7 +18,22 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <directory>${project.basedir}/target</directory>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+
     </build>
 
     <dependencies>
@@ -58,11 +74,21 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.7</version>
         </dependency>
-
-
-
-
     </dependencies>
+
+    <distributionManagement>
+        <!-- 两个ID必须与 settings.xml中的<server><id>nexus-releases</id></server>保持一致-->
+        <repository>
+            <id>maven-release</id>
+            <name>Maven Release Repository</name>
+            <url>http://114.55.103.9:8081/repository/maven-release</url>
+        </repository>
+        <snapshotRepository>
+            <id>maven-snapshot</id>
+            <name>Maven Snapshot Repository</name>
+            <url>http://114.55.103.9:8081/repository/maven-snapshot</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 
 </project>

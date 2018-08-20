@@ -22,22 +22,15 @@ public class Retrieve {
     /**
      * 默认为本地存储
      */
-    public Retrieve(Class... classes){
+    public Retrieve(Object... objects){
 
-        if(classes.length == 0) {
+        if(objects.length == 0) {
             this.subscriptionServices.add(new SubscriptionServiceEhcacheImp());
         } else {
-            for (int i = 0; i < classes.length; i++) {
-                Class class_ = classes[i];
-                try {
-                        subscriptionServices.add((SubscriptionService) Thread.currentThread().getContextClassLoader().loadClass(class_.getName()).newInstance());
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+            for (int i = 0; i < objects.length; i++) {
+                Object obj = objects[i];
+                if(obj instanceof SubscriptionService)
+                    subscriptionServices.add((SubscriptionService) obj);
             }
         }
     }

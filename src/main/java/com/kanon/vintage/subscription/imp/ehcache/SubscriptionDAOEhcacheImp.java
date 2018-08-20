@@ -30,56 +30,73 @@ import java.util.Map;
  */
 public class SubscriptionDAOEhcacheImp extends SubscriptionDAO {
 
-    private static SubscriptionDAOEhcacheImp subscriptionEhcacheImp = new SubscriptionDAOEhcacheImp();
+    Logger logger = LoggerFactory.getLogger(SubscriptionDAOEhcacheImp.class);
 
-    public static SubscriptionDAOEhcacheImp getInstance(){ return subscriptionEhcacheImp;}
+    public String storagePath;
+    CacheManager cacheManager;
+    private String cacheName ;
 
-    private String storagePath;
+    public SubscriptionDAOEhcacheImp(CacheManager cacheManager, String cacheName) {
 
-    private SubscriptionDAOEhcacheImp() {
+        this.storagePath =  propertiesLoader.getProperty("vintage.subscription.ehcache.diskroot");
+        this.cacheManager= cacheManager;
+        this.cacheName = cacheName;
+
+        if(cacheManager == null){
+            this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+                    .with(CacheManagerBuilder.persistence(new File(this.getStoragePath(), cacheName)))
+                    .withCache(cacheName, getDefaultConfigurationBuilder())// init a cache
+                    .build(true);
+        }
+        if(this.cacheManager.getCache(this.cacheName, String.class, PersonSubscription.class)==null){
+            this.cacheManager.createCache(this.cacheName, getDefaultConfigurationBuilder());
+        }
 
         if( Boolean.valueOf(propertiesLoader.getProperty("vintage.subscription.ehcache,enableshutdownhook"))) {
             //if shutdown hook is enabled, then add a safe close of cacheManager
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> SubscriptionDAOEhcacheImp.getInstance().cacheManager.close()));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> this.cacheManager.close()));
         }
-        this.storagePath =  propertiesLoader.getProperty("vintage.subscription.ehcache.diskroot");
+
     }
+
+    public SubscriptionDAOEhcacheImp(String cacheName){
+        this(null, cacheName);
+    }
+
+    public SubscriptionDAOEhcacheImp(){
+        this(null,"SUBSCRIPTION_CACHE" );
+    }
+
+    public SubscriptionDAOEhcacheImp(CacheManager cacheManager){ this(cacheManager, "SUBSCRIPTION_CACHE");}
 
     private String getStoragePath(){
         return this.storagePath;
     }
 
-    Logger logger = LoggerFactory.getLogger(SubscriptionDAOEhcacheImp.class);
-    CacheManager cacheManager = null;
-    Cache cache = null;
-
-    private final static String CACHE_NAME = "SUBSCRIPTION_CACHE";
-
-    private CacheConfigurationBuilder<String, PersonSubscription> getDefaultConfigurationBuilder(){
+    private static CacheConfigurationBuilder<String, PersonSubscription> getDefaultConfigurationBuilder(){
        return  CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, PersonSubscription.class,
                 ResourcePoolsBuilder.newResourcePoolsBuilder()
                         .heap(10, EntryUnit.ENTRIES)
                         .disk(500, MemoryUnit.MB, true));
     }
 
-
     public CacheManager getCacheManager() {
-        if(this.cacheManager==null) {
-            cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-                    .with(CacheManagerBuilder.persistence(new File(this.getStoragePath(), CACHE_NAME)))
-                    .withCache(CACHE_NAME, getDefaultConfigurationBuilder())// init a cache
-                    .build(true);
-        }
         return cacheManager;
     }
 
+    public void setCacheName(String cacheName) {
+        this.cacheName = cacheName;
+    }
+
+    public String getCacheName() {
+        return cacheName;
+    }
 
     public Cache getCache(){
-        if(cache == null){
-            cache = getCacheManager().getCache(CACHE_NAME, String.class, PersonSubscription.class);
-        }
+        Cache cache = getCacheManager().getCache(cacheName, String.class, PersonSubscription.class);
         return cache;
     }
+
     public void setCacheManager(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
