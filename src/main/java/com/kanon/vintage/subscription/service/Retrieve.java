@@ -41,12 +41,15 @@ public class Retrieve {
 
     public List<Subscription> retrieval(String userid, String[] groupNames, String keywords){
         PersonSubscription personSubscription = new PersonSubscription(userid, new HashMap<>());
-
+        List<Subscription> results = new ArrayList<Subscription>();
+        if(StringUtils.isBlank(keywords)){
+            return results;
+        }
         this.subscriptionServices.parallelStream().forEach( x->{
             PersonSubscription PS = x.get(userid);
             personSubscription.getGroupSubscriptions().putAll(PS.getGroupSubscriptions());
         });
-        List<Subscription> results = new ArrayList<Subscription>();
+
         if(groupNames.length==0){
             logger.warn("empty searching space, use all" );
             Set<String> set = personSubscription.getGroupSubscriptions().keySet();
@@ -56,10 +59,10 @@ public class Retrieve {
             List<Subscription> cur_search = (List<Subscription>) personSubscription.getGroupSubscriptions().get(groupname);
             if(cur_search!=null && cur_search.size() > 0){
                 results.addAll(cur_search.parallelStream()
-                        .filter( x -> (x.getTitle().indexOf(keywords) >= 0)
-                                ||(x.getLink().indexOf(keywords) >= 0)
-                                ||(x.getDescription().indexOf(keywords) >= 0)
-                                ||(x.getFrom().indexOf(keywords) >= 0))
+                        .filter( x -> (x.getTitle()!=null && x.getTitle().indexOf(keywords) >= 0)
+                                ||(x.getLink()!=null && x.getLink().indexOf(keywords) >= 0)
+                                ||(x.getDescription() != null && x.getDescription().indexOf(keywords) >= 0)
+                                ||(x.getFrom() != null && x.getFrom().indexOf(keywords) >= 0))
                         .collect(Collectors.toList()));
             }
         }
